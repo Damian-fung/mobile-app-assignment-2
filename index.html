@@ -18,6 +18,9 @@
       href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"
     />
     <style>
+        ion-item{
+            max-width: 40rem;
+        }
       .item-content {
         width: 100%;
       }
@@ -60,6 +63,24 @@
               <div class="item-title">標題</div>
               <div class="item-subtitle">副標題</div>
               <div class="item-details">詳細資訊</div>
+              <div class="item-highlights">特點</div>
+              <div class="item-imge"><img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg"></div>
+
+
+
+              <div class="item-videos">
+                <iframe
+                  width="560"
+                  height="315"
+                  src="https://www.youtube.com/embed/QxPBCBX8ac8"
+                  title="YouTube video player"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen
+                ></iframe>
+              </div>
+
               <div class="tag-container">
                 <ion-chip size="small">分類</ion-chip>
                 <!-- 標籤 -->
@@ -70,20 +91,43 @@
       </ion-content>
     </ion-app>
     <script src="post.js"></script>
-    <script>
-      console.log(items);
-      function updatelist() {
-        const list = document.querySelector("ion-list");
-        const template = document.querySelector(".list-item");
-        list.textContent = ""
 
-        for(let item of items){
+    <script>
+      let searchbar = document.querySelector("ion-searchbar");
+      let list = document.querySelector("ion-list");
+      let template = document.querySelector(".list-item");
+
+      function updatelist() {
+        list.innerText = "";
+
+        for (let item of items) {
+          if (
+            !searchbar.value ||
+            item.title
+              .toLocaleLowerCase()
+              .includes(searchbar.value.toLocaleLowerCase())
+          ) {
             let node = template.cloneNode(true);
             node.querySelector(".item-title").textContent = item.title;
+            node.querySelector(".item-subtitle").textContent = item.type;
+            node.querySelector(".item-details").textContent = item.desc;
+            node.querySelector(".item-highlights").textContent = item.highlight;
+            node.querySelector(".item-videos iframe").src = item.video_url
+            .replace('https://www.youtube.com/watch?v=','https://www.youtube.com/embed/')
+            node.querySelector(".item-imge img").src = item.image_url;
+
             list.appendChild(node);
+          }
         }
       }
+
       updatelist();
+
+      searchbar.addEventListener("ionInput", (event) => {
+        // 實作搜尋邏輯
+        console.log(searchbar.value);
+        updatelist();
+      });
     </script>
   </body>
 </html>
