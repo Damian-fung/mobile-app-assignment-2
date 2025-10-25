@@ -100,6 +100,10 @@
       let template = document.querySelector(".list-item");
 
       async function updatelist() {
+        const searchbar = document.querySelector("ion-searchbar");
+        const categorySelect = document.querySelector("ion-select");
+        const list = document.querySelector("ion-list");
+        list.innerText = "Loading...";
         let baseUrl = "https://dae-mobile-assignment.hkit.cc/api";
         let json = await fetch(`${baseUrl}/hardware`, {
           method: "GET",
