@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>開源硬體</title>
+    <title>開源硬體清單</title>
+
     <!-- Ionic CDN -->
     <script
       type="module"
@@ -17,9 +18,16 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"
     />
+
     <style>
       ion-item {
         max-width: 40rem;
+        margin: auto;
+      }
+      ion-content {
+        --padding-start: 1rem;
+        --padding-end: 1rem;
+        --padding-bottom: 4rem;
       }
       .item-content {
         width: 100%;
@@ -32,38 +40,72 @@
         color: var(--ion-color-medium);
         font-size: 0.9em;
       }
+      .item-imge img {
+        width: 100%;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .item-videos iframe {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+      }
       .tag-container {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
         margin-top: 0.5rem;
       }
+      .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        gap: 1rem;
+      }
+      .page-info {
+        font-size: 0.9em;
+        color: var(--ion-color-medium);
+      }
+      ion-toolbar ion-button {
+        margin-left: auto;
+      }
     </style>
   </head>
+
   <body>
     <ion-app>
       <ion-header>
-        <ion-toolbar>
-          <ion-title>開源硬體</ion-title>
+        <ion-toolbar color="primary">
+          <ion-title>開源硬體清單</ion-title>
+            <ion-back-button defaultHref="index.html"></ion-back-button>
+          <ion-buttons slot="end">
+          <ion-button color="primary">Login</ion-button>
+            <ion-button id="resetFilters">重設</ion-button>
+          </ion-buttons>
         </ion-toolbar>
+
         <ion-searchbar placeholder="搜尋..."></ion-searchbar>
+
         <ion-item>
           <ion-select label="分類" interface="popover">
             <ion-select-option value="">全部</ion-select-option>
-            <!-- 根據主題加入分類選項 -->
           </ion-select>
         </ion-item>
       </ion-header>
 
       <ion-content>
-        <ion-list>
-          <!-- 清單項目範本 -->
-          <ion-item class="list-item">
+        <div class="pagination-container" id="paginationContainer"></div>
+        <ion-list id="itemList">
+          <!-- 預設模板 (會被 clone) -->
+          <ion-item class="list-item" style="display: none;">
             <div class="item-content">
               <div class="item-title">標題</div>
-              <div class="item-subtitle">副標題</div>
-              <div class="item-details">詳細資訊</div>
+              <div class="item-subtitle">分類</div>
+              <div class="item-details">描述</div>
               <div class="item-highlights">特點</div>
+
               <div class="item-imge">
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg"
@@ -72,118 +114,228 @@
 
               <div class="item-videos">
                 <iframe
-                  width="560"
-                  height="315"
                   src="https://www.youtube.com/embed/QxPBCBX8ac8"
-                  title="YouTube video player"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerpolicy="strict-origin-when-cross-origin"
                   allowfullscreen
                 ></iframe>
               </div>
 
               <div class="tag-container">
                 <ion-chip size="small">分類</ion-chip>
-                <!-- 標籤 -->
               </div>
             </div>
           </ion-item>
         </ion-list>
+
+        <div class="pagination-container" id="paginationContainerBottom"></div>
       </ion-content>
     </ion-app>
-    <script src="post.js"></script>
 
     <script>
-      let searchbar = document.querySelector("ion-searchbar");
-      let list = document.querySelector("ion-list");
-      let template = document.querySelector(".list-item");
+      // === 全局變數 ===
+      let currentPage = 1;
+      let maxPage = 1;
+      let searchTerm = "";
+      let selectedCategory = "";
 
-      async function updatelist() {
-        const searchbar = document.querySelector("ion-searchbar");
-        const categorySelect = document.querySelector("ion-select");
-        const list = document.querySelector("ion-list");
-        list.innerText = "Loading...";
-        let baseUrl = "https://dae-mobile-assignment.hkit.cc/api";
-        let json = await fetch(`${baseUrl}/hardware`, {
-          method: "GET",
-        })
-          .catch(() => {
-            return {
-              error: "Network Error: please check your wifi connection",
-            };
+      // === DOM 元素 ===
+      const searchbar = document.querySelector("ion-searchbar");
+      const list = document.getElementById("itemList");
+      const template = document.querySelector(".list-item");
+      const paginationContainers = document.querySelectorAll(
+        ".pagination-container"
+      );
+      const categorySelect = document.querySelector("ion-select");
+      const resetButton = document.getElementById("resetFilters");
 
-          })
-          .then((res) => {
-            if (res.error) {
-              return res;
+      // === 初始化 ===
+      document.addEventListener("DOMContentLoaded", function () {
+        updatelist(1);
+
+        // 🔍 搜尋功能
+        let searchTimer;
+        searchbar.addEventListener("ionInput", (event) => {
+          searchTerm = searchbar.value.trim();
+          clearTimeout(searchTimer);
+          searchTimer = setTimeout(() => {
+            currentPage = 1;
+            updatelist(1);
+          }, 1000);
+        });
+
+        // 🏷️ 分類篩選
+        categorySelect.addEventListener("ionChange", (event) => {
+          selectedCategory = event.detail.value;
+          currentPage = 1;
+          updatelist(1);
+        });
+
+        // 🔄 重設篩選
+        resetButton.addEventListener("click", () => {
+          searchTerm = "";
+          selectedCategory = "";
+          searchbar.value = "";
+          categorySelect.value = "";
+          currentPage = 1;
+          updatelist(1);
+        });
+      });
+
+      // === 分頁控制 ===
+      function goToPrevPage() {
+        if (currentPage > 1) updatelist(currentPage - 1);
+      }
+      function goToNextPage() {
+        if (currentPage < maxPage) updatelist(currentPage + 1);
+      }
+
+      // === 更新清單 ===
+      async function updatelist(page = 1) {
+        list.innerHTML = "Loading...";
+
+        try {
+          const baseUrl = "https://dae-mobile-assignment.hkit.cc/api";
+          let url = `${baseUrl}/hardware?page=${page}`;
+
+          if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+          if (selectedCategory)
+            url += `&category=${encodeURIComponent(selectedCategory)}`;
+
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
+
+          const json = await response.json();
+          console.log("API Response:", json);
+
+          list.innerHTML = "";
+
+          // === 無結果 ===
+          if (!json.items || json.items.length === 0) {
+            const noItem = document.createElement("ion-item");
+            noItem.innerHTML = `
+              <ion-label class="ion-text-center">
+                <h2>沒有找到相關項目</h2>
+                <p>請嘗試其他搜尋條件</p>
+              </ion-label>`;
+            list.appendChild(noItem);
+          } else {
+            // === 顯示項目 ===
+            for (const item of json.items) {
+              const node = template.cloneNode(true);
+              node.style.display = "block";
+              node.querySelector(".item-title").textContent = item.title;
+              node.querySelector(".item-subtitle").textContent = item.category;
+              node.querySelector(".item-details").textContent =
+                item.description;
+              node.querySelector(".item-highlights").textContent =
+                item.highlight || "";
+
+              // 圖片
+              if (item.image_url) {
+                node.querySelector(".item-imge img").src = item.image_url;
+              } else {
+                node.querySelector(".item-imge").innerHTML = "";
+              }
+
+              // 影片
+              if (item.video_url) {
+                node.querySelector(".item-videos iframe").src =
+                  item.video_url.replace(
+                    "https://www.youtube.com/watch?v=",
+                    "https://www.youtube.com/embed/"
+                  );
+              } else {
+                node.querySelector(".item-videos").innerHTML = "";
+              }
+
+              // 標籤
+              const tagContainer = node.querySelector(".tag-container");
+              tagContainer.innerHTML = "";
+              if (item.tags && Array.isArray(item.tags)) {
+                for (const tag of item.tags) {
+                  const chip = document.createElement("ion-chip");
+                  chip.size = "small";
+                  chip.textContent = tag;
+                  tagContainer.appendChild(chip);
+                }
+              }
+
+              list.appendChild(node);
             }
-            return res.json();
-          });
-        console.log(json);
-        if (json.error) {
+          }
+
+          // === 分頁資訊 ===
+          if (json.pagination) {
+            currentPage = parseInt(json.pagination.page) || 1;
+            const total = parseInt(json.pagination.total) || 0;
+            const perPage = parseInt(json.pagination.limit) || 10;
+            maxPage = perPage > 0 ? Math.ceil(total / perPage) : 1;
+          } else {
+            currentPage = 1;
+            maxPage = 1;
+          }
+
+          // === 動態建立分類選項（只建立一次） ===
+          updateCategoryOptions(json.items);
+
+          // === 更新分頁按鈕 ===
+          paginationContainers.forEach(updatePaginationControls);
+        } catch (error) {
+          console.error("Failed to load data:", error);
+
           const alert = document.createElement("ion-alert");
-          alert.header = "Failed to load hardware list";
-          alert.message = json.error;
-          alert.buttons = ["Action"];
-          alert.buttons= [ {
-            text: 'Retry',
-            handler: () => {
-              updatelist();
-            }
-          } ];
-          
-
+          alert.header = "載入硬體列表失敗";
+          alert.message = error.message || "發生未知錯誤";
+          alert.buttons = [
+            {
+              text: "重試",
+              handler: () => updatelist(currentPage),
+            },
+          ];
           document.body.appendChild(alert);
           await alert.present();
-          return;
-        }
-
-        list.innerText = "";
-
-        for (let item of json.items) {
-          if (
-            !searchbar.value ||
-            item.title
-              .toLocaleLowerCase()
-              .includes(searchbar.value.toLocaleLowerCase())
-          ) {
-            let node = template.cloneNode(true);
-            node.querySelector(".item-title").textContent = item.title;
-            node.querySelector(".item-subtitle").textContent = item.category;
-            node.querySelector(".item-details").textContent = item.description;
-            node.querySelector(".item-highlights").textContent = item.highlight;
-            node.querySelector(".item-videos iframe").src =
-              item.video_url.replace(
-                "https://www.youtube.com/watch?v=",
-                "https://www.youtube.com/embed/"
-              );
-            node.querySelector(".item-imge img").src = item.image_url;
-            node.querySelector(".tag-container").innerHTML = "";
-            for (let tag of item.tags) {
-              let chip = document.createElement("ion-chip");
-              chip.size = "small";
-              chip.textContent = tag;
-              node.querySelector(".tag-container").appendChild(chip);
-            }
-
-            list.appendChild(node);
-          }
         }
       }
 
-      updatelist();
+      // === 動態生成分類選單 ===
+      function updateCategoryOptions(items) {
+        if (!items || items.length === 0) return;
 
-      let searchTimer 
-      searchbar.addEventListener("ionInput", (event) => {
-        // 實作搜尋邏輯
-        console.log(searchbar.value);
-        console.log('will auto search after 1 second...')
-        clearTimeout(searchTimer)
-        searchTimer = setTimeout(() => {
-          updatelist();
-        }, 1000);
-      });
+        const existingOptions = categorySelect.querySelectorAll(
+          "ion-select-option"
+        );
+        if (existingOptions.length <= 1) {
+          const categories = new Set(
+            items.map((item) => item.category).filter(Boolean)
+          );
+          categories.forEach((cat) => {
+            const opt = document.createElement("ion-select-option");
+            opt.value = cat;
+            opt.textContent = cat;
+            categorySelect.appendChild(opt);
+          });
+        }
+      }
+
+      // === 分頁控制區 ===
+      function updatePaginationControls(container) {
+        container.innerHTML = `
+          <ion-button id="prevPage" ${currentPage <= 1 ? "disabled" : ""}>
+            <ion-icon name="chevron-back-outline"></ion-icon>
+            上一頁
+          </ion-button>
+          <div class="page-info">第 ${currentPage} / ${maxPage} 頁</div>
+          <ion-button id="nextPage" ${currentPage >= maxPage ? "disabled" : ""}>
+            下一頁
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </ion-button>
+        `;
+        container
+          .querySelector("#prevPage")
+          ?.addEventListener("click", goToPrevPage);
+        container
+          .querySelector("#nextPage")
+          ?.addEventListener("click", goToNextPage);
+      }
     </script>
   </body>
 </html>
