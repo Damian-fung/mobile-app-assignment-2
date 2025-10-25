@@ -71,6 +71,17 @@
       ion-toolbar ion-button {
         margin-left: auto;
       }
+      /* 添加 modal 內容樣式 */
+      .modal-content {
+        padding: 1rem;
+      }
+      .modal-content ion-input {
+        margin-bottom: 1rem;
+      }
+      .modal-link {
+        text-align: center;
+        margin-top: 1rem;
+      }
     </style>
   </head>
 
@@ -79,10 +90,12 @@
       <ion-header>
         <ion-toolbar color="primary">
           <ion-title>開源硬體清單</ion-title>
+          <ion-buttons slot="start">
             <ion-back-button defaultHref="index.html"></ion-back-button>
+          </ion-buttons>
           <ion-buttons slot="end">
-          <ion-button color="primary">Login</ion-button>
-            <ion-button id="resetFilters">重設</ion-button>
+            <ion-button id="LoginButton" color="light">Login</ion-button>
+            <ion-button id="RegisterButton" color="light">Register</ion-button>
           </ion-buttons>
         </ion-toolbar>
 
@@ -128,6 +141,51 @@
 
         <div class="pagination-container" id="paginationContainerBottom"></div>
       </ion-content>
+
+      <!-- 登入 Modal -->
+      <ion-modal id="loginModal" trigger="LoginButton">
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-buttons slot="start">
+              <ion-button color="light" id="closeLoginModalBtn">Close</ion-button>
+            </ion-buttons>
+            <ion-title>Login</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="modal-content">
+          <ion-input type="text" label="Username" placeholder="請輸入用戶名"></ion-input>
+          <ion-input type="password" label="Password" placeholder="請輸入密碼"></ion-input>
+          <ion-button class="ion-margin-top" expand="block">Login</ion-button>
+          <div class="modal-link">
+            <p>Don't have an account? 
+              <a href="#" id="goToRegisterFromLogin">Register</a>
+            </p>
+          </div>
+        </ion-content>
+      </ion-modal>
+
+      <!-- 註冊 Modal -->
+      <ion-modal id="registerModal" trigger="RegisterButton">
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-buttons slot="start">
+              <ion-button color="light" id="closeRegisterModalBtn">Close</ion-button>
+            </ion-buttons>
+            <ion-title>Register</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="modal-content">
+          <ion-input type="text" label="Username" placeholder="請輸入用戶名"></ion-input>
+          <ion-input type="email" label="Email" placeholder="請輸入電子郵件"></ion-input>
+          <ion-input type="password" label="Password" placeholder="請輸入密碼"></ion-input>
+          <ion-button class="ion-margin-top" expand="block">Register</ion-button>
+          <div class="modal-link">
+            <p>Already have an account?
+              <a href="#" id="goToLoginFromRegister">Login</a>
+            </p>
+          </div>
+        </ion-content>
+      </ion-modal>
     </ion-app>
 
     <script>
@@ -145,7 +203,10 @@
         ".pagination-container"
       );
       const categorySelect = document.querySelector("ion-select");
-      const resetButton = document.getElementById("resetFilters");
+
+      // === Modal 元素 ===
+      const loginModal = document.getElementById('loginModal');
+      const registerModal = document.getElementById('registerModal');
 
       // === 初始化 ===
       document.addEventListener("DOMContentLoaded", function () {
@@ -169,15 +230,47 @@
           updatelist(1);
         });
 
-        // 🔄 重設篩選
-        resetButton.addEventListener("click", () => {
-          searchTerm = "";
-          selectedCategory = "";
-          searchbar.value = "";
-          categorySelect.value = "";
-          currentPage = 1;
-          updatelist(1);
-        });
+        // 關閉 modal 功能
+        const closeLoginButton = document.getElementById("closeLoginModalBtn");
+        if (closeLoginButton) {
+          closeLoginButton.addEventListener("click", function() {
+            if (loginModal) {
+              loginModal.dismiss();
+            }
+          });
+        }
+
+        const closeRegisterButton = document.getElementById("closeRegisterModalBtn");
+        if (closeRegisterButton) {
+          closeRegisterButton.addEventListener("click", function() {
+            if (registerModal) {
+              registerModal.dismiss();
+            }
+          });
+        }
+
+        // 切換 modal 功能
+        const goToRegisterLink = document.getElementById("goToRegisterFromLogin");
+        if (goToRegisterLink) {
+          goToRegisterLink.addEventListener("click", function(e) {
+            e.preventDefault();
+            if (loginModal && registerModal) {
+              loginModal.dismiss();
+              registerModal.present();
+            }
+          });
+        }
+
+        const goToLoginLink = document.getElementById("goToLoginFromRegister");
+        if (goToLoginLink) {
+          goToLoginLink.addEventListener("click", function(e) {
+            e.preventDefault();
+            if (registerModal && loginModal) {
+              registerModal.dismiss();
+              loginModal.present();
+            }
+          });
+        }
       });
 
       // === 分頁控制 ===
@@ -335,6 +428,14 @@
         container
           .querySelector("#nextPage")
           ?.addEventListener("click", goToNextPage);
+      }
+      function switchToLoginModal() {
+        registerModal.dismiss();
+        loginModal.present();
+      }
+      function switchToRegisterModal() {
+        loginModal.dismiss();
+        registerModal.present();
       }
     </script>
   </body>
