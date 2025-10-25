@@ -155,10 +155,11 @@
         <ion-content class="modal-content">
           <ion-input type="text" label="Username" placeholder="請輸入用戶名"></ion-input>
           <ion-input type="password" label="Password" placeholder="請輸入密碼"></ion-input>
-          <ion-button class="ion-margin-top" expand="block">Login</ion-button>
-          <div class="modal-link">
+          <ion-button class="ion-margin-top" expand="block"onclick="submitlogin()">Login</ion-button>
+         <p><ion-text id="loginResultTText"></p>
+
             <p>Don't have an account? 
-              <a href="#" id="goToRegisterFromLogin">Register</a>
+              <a href="#" onclick="switchToRegisterModal()">Register</a>
             </p>
           </div>
         </ion-content>
@@ -178,10 +179,10 @@
           <ion-input type="text" label="Username" placeholder="請輸入用戶名"></ion-input>
           <ion-input type="email" label="Email" placeholder="請輸入電子郵件"></ion-input>
           <ion-input type="password" label="Password" placeholder="請輸入密碼"></ion-input>
-          <ion-button class="ion-margin-top" expand="block">Register</ion-button>
+          <ion-button class="ion-margin-top" expand="block"onclick=submitRegister()>Register</ion-button>
           <div class="modal-link">
             <p>Already have an account?
-              <a href="#" id="goToLoginFromRegister">Login</a>
+              <a href="#" onclick="switchToLoginModal()">Login</a>
             </p>
           </div>
         </ion-content>
@@ -280,13 +281,12 @@
       function goToNextPage() {
         if (currentPage < maxPage) updatelist(currentPage + 1);
       }
-
+       const baseUrl = "https://dae-mobile-assignment.hkit.cc/api";
       // === 更新清單 ===
       async function updatelist(page = 1) {
         list.innerHTML = "Loading...";
 
         try {
-          const baseUrl = "https://dae-mobile-assignment.hkit.cc/api";
           let url = `${baseUrl}/hardware?page=${page}`;
 
           if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
@@ -429,14 +429,51 @@
           .querySelector("#nextPage")
           ?.addEventListener("click", goToNextPage);
       }
-      function switchToLoginModal() {
-        registerModal.dismiss();
-        loginModal.present();
-      }
       function switchToRegisterModal() {
         loginModal.dismiss();
         registerModal.present();
+
+        registerModal.querySelector('ion-input[name="username"]').value = 
+        loginModal.querySelector('ion-input[name="username"]').value
+
+         registerModal.querySelector('ion-input[name="password"]').value = 
+        loginModal.querySelector('ion-input[name="password"]').value
+
+        registerModal.querySelector('ion-input[name="confirmPassword"]').value = ''
       }
+      function switchToLoginModal() {
+        registerModal.dismiss();
+        loginModal.present();
+
+        loginModal.querySelector('ion-input[name="username"]').value = 
+        registerModal.querySelector('ion-input[name="username"]').value
+
+         loginModal.querySelector('ion-input[name="password"]').value = 
+        registerModal.querySelector('ion-input[name="password"]').value
+      }
+
+      async function submitlogin() {
+        let username = loginModal.querySelector('ion-input[label="username"]').value;
+        let password = loginModal.querySelector('ion-input[label="password"]').value;
+        let res = await fetch(`${baseUrl}/auth/login`, {
+          method: "POST",
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ username, password }),
+      })
+      let json = await res.json();
+      console.log("Login json:", json);
+      if (json.error){
+        loginResultText.color ='danger'
+        loginResult.textContent = json.error
+        return
+      } else {
+        loginResultText.color = 'success'
+        loginResult.textContent = 'Login successful';
+        localStorage.setItem('token',json.token)
+        setTimeout(() => { loginModal.dismiss()
+        },2000)
+      }
+    }
     </script>
   </body>
 </html>
