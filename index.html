@@ -153,10 +153,10 @@
           </ion-toolbar>
         </ion-header>
         <ion-content class="modal-content">
-          <ion-input type="text" label="Username" placeholder="請輸入用戶名"></ion-input>
-          <ion-input type="password" label="Password" placeholder="請輸入密碼"></ion-input>
+          <ion-input type="text" name="username" label="Username" placeholder="請輸入用戶名"></ion-input>
+          <ion-input type="password" name="password" label="Password" placeholder="請輸入密碼"></ion-input>
           <ion-button class="ion-margin-top" expand="block"onclick="submitlogin()">Login</ion-button>
-         <p><ion-text id="loginResultTText"></p>
+         <p><ion-text id="loginResultText"></p>
 
             <p>Don't have an account? 
               <a href="#" onclick="switchToRegisterModal()">Register</a>
@@ -179,7 +179,7 @@
           <ion-input type="text" label="Username" placeholder="請輸入用戶名"></ion-input>
           <ion-input type="email" label="Email" placeholder="請輸入電子郵件"></ion-input>
           <ion-input type="password" label="Password" placeholder="請輸入密碼"></ion-input>
-          <ion-button class="ion-margin-top" expand="block"onclick=submitRegister()>Register</ion-button>
+          <ion-button class="ion-margin-top" expand="block"onclick="submitRegister()">Register</ion-button>
           <div class="modal-link">
             <p>Already have an account?
               <a href="#" onclick="switchToLoginModal()">Login</a>
@@ -453,8 +453,8 @@
       }
 
       async function submitlogin() {
-        let username = loginModal.querySelector('ion-input[label="username"]').value;
-        let password = loginModal.querySelector('ion-input[label="password"]').value;
+        let username = loginModal.querySelector('ion-input[name="username"]').value;
+        let password = loginModal.querySelector('ion-input[name="password"]').value;
         let res = await fetch(`${baseUrl}/auth/login`, {
           method: "POST",
           headers:{'Content-Type':'application/json'},
@@ -464,11 +464,11 @@
       console.log("Login json:", json);
       if (json.error){
         loginResultText.color ='danger'
-        loginResult.textContent = json.error
+        loginResultText.textContent = json.error
         return
       } else {
         loginResultText.color = 'success'
-        loginResult.textContent = 'Login successful';
+        loginResultText.textContent = 'Login successful';
         localStorage.setItem('token',json.token)
         setTimeout(() => { loginModal.dismiss()
         },2000)
