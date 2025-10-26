@@ -95,7 +95,9 @@
           </ion-buttons>
           <ion-buttons slot="end">
             <ion-button id="LoginButton" color="light">Login</ion-button>
-          <ion-buttons id="LogoutButton" color="light" onclick="logout()">Logout</ion-button>
+            <ion-button id="LogoutButton" color="light" onclick="logout()"
+              >Logout</ion-button
+            >
             <ion-button id="RegisterButton" color="light">Register</ion-button>
           </ion-buttons>
         </ion-toolbar>
@@ -113,7 +115,7 @@
         <div class="pagination-container" id="paginationContainer"></div>
         <ion-list id="itemList">
           <!-- 預設模板 (會被 clone) -->
-          <ion-item class="list-item" style="display: none;">
+          <ion-item class="list-item" style="display: none">
             <div class="item-content">
               <div class="item-title">標題</div>
               <div class="item-subtitle">分類</div>
@@ -148,21 +150,37 @@
         <ion-header>
           <ion-toolbar color="primary">
             <ion-buttons slot="start">
-              <ion-button color="light" id="closeLoginModalBtn">Close</ion-button>
+              <ion-button color="light" id="closeLoginModalBtn"
+                >Close</ion-button
+              >
             </ion-buttons>
             <ion-title>Login</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content class="modal-content">
-          <ion-input type="text" name="username" label="Username" placeholder="請輸入用戶名"></ion-input>
-          <ion-input type="password" name="password" label="Password" placeholder="請輸入密碼"></ion-input>
-          <ion-button class="ion-margin-top" expand="block"onclick="submitlogin()">Login</ion-button>
-         <p><ion-text id="loginResultText"></p>
+          <ion-input
+            type="text"
+            name="username"
+            label="Username"
+            placeholder="請輸入用戶名"
+          ></ion-input>
+          <ion-input
+            type="password"
+            name="password"
+            label="Password"
+            placeholder="請輸入密碼"
+          ></ion-input>
+          <ion-button
+            class="ion-margin-top"
+            expand="block"
+            onclick="submitlogin()"
+            >Login</ion-button>
+          <p><ion-text id="loginResultText"></ion-text></p>
 
-            <p>Don't have an account? 
-              <a href="#" onclick="switchToRegisterModal()">Register</a>
-            </p>
-          </div>
+          <p>
+            Don't have an account?
+            <a href="#" onclick="switchToRegisterModal()">Register</a>
+          </p>
         </ion-content>
       </ion-modal>
 
@@ -171,19 +189,42 @@
         <ion-header>
           <ion-toolbar color="primary">
             <ion-buttons slot="start">
-              <ion-button color="light" id="closeRegisterModalBtn">Close</ion-button>
+              <ion-button color="light" id="closeRegisterModalBtn"
+                >Close</ion-button
+              >
             </ion-buttons>
             <ion-title>Register</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content class="modal-content">
-          <ion-input type="text" name="username" label="Username" placeholder="請輸入用戶名"></ion-input>
-          <ion-input type="email" name="email" label="Email" placeholder="請輸入電子郵件"></ion-input>
-          <ion-input type="password" name="password" label="Password" placeholder="請輸入密碼"></ion-input>
-          <ion-input type="confirmPassword" name="confirmPassword" label="ConfirmPassword" placeholder="請輸入密碼"></ion-input>
-          <ion-button class="ion-margin-top" expand="block"onclick="submitRegister()">Register</ion-button>
+          <ion-input
+            type="text"
+            name="username"
+            label="Username"
+            placeholder="請輸入用戶名"
+          ></ion-input>
+          <ion-input
+            type="password"
+            name="password"
+            label="Password"
+            placeholder="請輸入密碼"
+          ></ion-input>
+          <ion-input
+            type="confirmPassword"
+            name="confirmPassword"
+            label="Confirm Password"
+            placeholder="請輸入密碼"
+          ></ion-input>
+          <ion-button
+            class="ion-margin-top"
+            expand="block"
+            onclick="submitRegister()"
+            >Register</ion-button>
+
+            <p><ion-text id="RegisterResultText"></ion-text></p>
           <div class="modal-link">
-            <p>Already have an account?
+            <p>
+              Already have an account?
               <a href="#" onclick="switchToLoginModal()">Login</a>
             </p>
           </div>
@@ -208,8 +249,8 @@
       const categorySelect = document.querySelector("ion-select");
 
       // === Modal 元素 ===
-      const loginModal = document.getElementById('loginModal');
-      const registerModal = document.getElementById('registerModal');
+      const loginModal = document.getElementById("loginModal");
+      const registerModal = document.getElementById("registerModal");
 
       // === 初始化 ===
       document.addEventListener("DOMContentLoaded", function () {
@@ -236,16 +277,18 @@
         // 關閉 modal 功能
         const closeLoginButton = document.getElementById("closeLoginModalBtn");
         if (closeLoginButton) {
-          closeLoginButton.addEventListener("click", function() {
+          closeLoginButton.addEventListener("click", function () {
             if (loginModal) {
               loginModal.dismiss();
             }
           });
         }
 
-        const closeRegisterButton = document.getElementById("closeRegisterModalBtn");
+        const closeRegisterButton = document.getElementById(
+          "closeRegisterModalBtn"
+        );
         if (closeRegisterButton) {
-          closeRegisterButton.addEventListener("click", function() {
+          closeRegisterButton.addEventListener("click", function () {
             if (registerModal) {
               registerModal.dismiss();
             }
@@ -253,9 +296,11 @@
         }
 
         // 切換 modal 功能
-        const goToRegisterLink = document.getElementById("goToRegisterFromLogin");
+        const goToRegisterLink = document.getElementById(
+          "goToRegisterFromLogin"
+        );
         if (goToRegisterLink) {
-          goToRegisterLink.addEventListener("click", function(e) {
+          goToRegisterLink.addEventListener("click", function (e) {
             e.preventDefault();
             if (loginModal && registerModal) {
               loginModal.dismiss();
@@ -266,7 +311,7 @@
 
         const goToLoginLink = document.getElementById("goToLoginFromRegister");
         if (goToLoginLink) {
-          goToLoginLink.addEventListener("click", function(e) {
+          goToLoginLink.addEventListener("click", function (e) {
             e.preventDefault();
             if (registerModal && loginModal) {
               registerModal.dismiss();
@@ -283,7 +328,7 @@
       function goToNextPage() {
         if (currentPage < maxPage) updatelist(currentPage + 1);
       }
-       const baseUrl = "https://dae-mobile-assignment.hkit.cc/api";
+      const baseUrl = "https://dae-mobile-assignment.hkit.cc/api";
       // === 更新清單 ===
       async function updatelist(page = 1) {
         list.innerHTML = "Loading...";
@@ -307,10 +352,10 @@
           if (!json.items || json.items.length === 0) {
             const noItem = document.createElement("ion-item");
             noItem.innerHTML = `
-              <ion-label class="ion-text-center">
-                <h2>沒有找到相關項目</h2>
-                <p>請嘗試其他搜尋條件</p>
-              </ion-label>`;
+                <ion-label class="ion-text-center">
+                  <h2>沒有找到相關項目</h2>
+                  <p>請嘗試其他搜尋條件</p>
+                </ion-label>`;
             list.appendChild(noItem);
           } else {
             // === 顯示項目 ===
@@ -395,9 +440,8 @@
       function updateCategoryOptions(items) {
         if (!items || items.length === 0) return;
 
-        const existingOptions = categorySelect.querySelectorAll(
-          "ion-select-option"
-        );
+        const existingOptions =
+          categorySelect.querySelectorAll("ion-select-option");
         if (existingOptions.length <= 1) {
           const categories = new Set(
             items.map((item) => item.category).filter(Boolean)
@@ -414,16 +458,18 @@
       // === 分頁控制區 ===
       function updatePaginationControls(container) {
         container.innerHTML = `
-          <ion-button id="prevPage" ${currentPage <= 1 ? "disabled" : ""}>
-            <ion-icon name="chevron-back-outline"></ion-icon>
-            上一頁
-          </ion-button>
-          <div class="page-info">第 ${currentPage} / ${maxPage} 頁</div>
-          <ion-button id="nextPage" ${currentPage >= maxPage ? "disabled" : ""}>
-            下一頁
-            <ion-icon name="chevron-forward-outline"></ion-icon>
-          </ion-button>
-        `;
+            <ion-button id="prevPage" ${currentPage <= 1 ? "disabled" : ""}>
+              <ion-icon name="chevron-back-outline"></ion-icon>
+              上一頁
+            </ion-button>
+            <div class="page-info">第 ${currentPage} / ${maxPage} 頁</div>
+            <ion-button id="nextPage" ${
+              currentPage >= maxPage ? "disabled" : ""
+            }>
+              下一頁
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </ion-button>
+          `;
         container
           .querySelector("#prevPage")
           ?.addEventListener("click", goToPrevPage);
@@ -435,91 +481,140 @@
         loginModal.dismiss();
         registerModal.present();
 
-        registerModal.querySelector('ion-input[name="username"]').value = 
-        loginModal.querySelector('ion-input[name="username"]').value
+        registerModal.querySelector('ion-input[name="username"]').value =
+          loginModal.querySelector('ion-input[name="username"]').value;
 
-         registerModal.querySelector('ion-input[name="password"]').value = 
-        loginModal.querySelector('ion-input[name="password"]').value
+        registerModal.querySelector('ion-input[name="password"]').value =
+          loginModal.querySelector('ion-input[name="password"]').value;
 
-        registerModal.querySelector('ion-input[name="confirmPassword"]').value = ''
+        registerModal.querySelector('ion-input[name="confirmPassword"]').value =
+          "";
       }
       function switchToLoginModal() {
         registerModal.dismiss();
         loginModal.present();
 
-        loginModal.querySelector('ion-input[name="username"]').value = 
-        registerModal.querySelector('ion-input[name="username"]').value
+        loginModal.querySelector('ion-input[name="username"]').value =
+          registerModal.querySelector('ion-input[name="username"]').value;
 
-         loginModal.querySelector('ion-input[name="password"]').value = 
-        registerModal.querySelector('ion-input[name="password"]').value
+        loginModal.querySelector('ion-input[name="password"]').value =
+          registerModal.querySelector('ion-input[name="password"]').value;
       }
 
       async function submitlogin() {
-        let username = loginModal.querySelector('ion-input[name="username"]').value;
-        let password = loginModal.querySelector('ion-input[name="password"]').value;
+        let username = loginModal.querySelector(
+          'ion-input[name="username"]'
+        ).value;
+        let password = loginModal.querySelector(
+          'ion-input[name="password"]'
+        ).value;
         let res = await fetch(`${baseUrl}/auth/login`, {
           method: "POST",
-          headers:{'Content-Type':'application/json'},
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password }),
-      })
-      let json = await res.json();
-      console.log("Login json:", json);
-      if (json.error){
-        loginResultText.color ='danger'
-        loginResultText.textContent = json.error
-        return
-      } else {
-        loginResultText.color = 'success'
-        loginResultText.textContent = 'Login successful';
-        localStorage.setItem('token',json.token)
-        setTimeout(() => { loginModal.dismiss()
-          checkLogin()
-        },2000)
+        });
+        let json = await res.json();
+        console.log("Login json:", json);
+        if (json.error) {
+          loginResultText.color = "danger";
+          loginResultText.textContent = json.error;
+          return;
+        } else {
+          loginResultText.color = "success";
+          loginResultText.textContent = "Login successful";
+          localStorage.setItem("token", json.token);
+          setTimeout(() => {
+            loginModal.dismiss();
+            checkLogin();
+          }, 2000);
+        }
       }
-    }
-    async function checkLogin() {
-      let url =`${baseUrl}/auth/check`
-      let res = await fetch(url,{
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-      })
-      let json = await res.json()
-      if(json.error){
-        const alert = document.createElement('ion-alert')
-        alert.header = 'Failed to check login status'
-        alert.message = 'json.error'
-        alert.buttons=[{
-          text:'Dismiss', role: 'cancel'},
-        {
-          text: 'Retry',
-          role: 'confirm',
-          handler: () => {
-            checkLogin()
+
+      async function submitRegister() {
+        let username = registerModal.querySelector(
+          'ion-input[name="username"]'
+        ).value;
+        let password = registerModal.querySelector(
+          'ion-input[name="password"]'
+        ).value;
+
+        let confirmPassword = registerModal.querySelector(
+          'ion-input[name="confirmPassword"]'
+        ).value;
+        if (password != confirmPassword) {
+          RegisterResultText.color = "danger";
+          RegisterResultText.textContent = "password not matched";
+          return;
+        }
+
+        let res = await fetch(`${baseUrl}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        let json = await res.json();
+        console.log("register json:", json);
+        if (json.error) {
+          RegisterResultText.color = "danger";
+          RegisterResultText.textContent = json.error;
+          return;
+        }
+
+        RegisterResultText.color = "success";
+        RegisterResultText.textContent = "Login successful";
+        localStorage.setItem("token", json.token);
+        setTimeout(() => {
+          loginModal.dismiss();
+          checkLogin();
+        }, 2000);
+      }
+
+      async function checkLogin() {
+        let url = `${baseUrl}/auth/check`;
+        let res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        },
-      ]
+        });
+        let json = await res.json();
+        if (json.error) {
+          const alert = document.createElement("ion-alert");
+          alert.header = "Failed to check login status";
+          alert.message = "json.error";
+          alert.buttons = [
+            {
+              text: "Dismiss",
+              role: "cancel",
+            },
+            {
+              text: "Retry",
+              role: "confirm",
+              handler: () => {
+                checkLogin();
+              },
+            },
+          ];
 
-        document.body.appendChild(alert)
-        await alert.present()
-        return
+          document.body.appendChild(alert);
+          await alert.present();
+          return;
+        }
+        if (json.user_id) {
+          LoginButton.hidden = true;
+          LogoutButton.hidden = false;
+        } else {
+          LoginButton.hidden = true;
+          LogoutButton.hidden = false;
+        }
       }
-      if (json.user_id) {
-        LoginButton.hidden = true
-        LogoutButton.hidden = false
-      } else{
-        LoginButton.hidden = true
-        LogoutButton.hidden = false
-      }
-       }
-    checkLogin()
+      checkLogin();
 
-    function logout() {
-      localStorage.removeItem('token')
-      checkLogin()
-    }
+      function logout() {
+        localStorage.removeItem("token");
+        checkLogin();
+      }
     </script>
   </body>
 </html>
