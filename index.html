@@ -95,6 +95,7 @@
           </ion-buttons>
           <ion-buttons slot="end">
             <ion-button id="LoginButton" color="light">Login</ion-button>
+          <ion-buttons id="LogoutButton" color="light" onclick="logout()">Logout</ion-button>
             <ion-button id="RegisterButton" color="light">Register</ion-button>
           </ion-buttons>
         </ion-toolbar>
@@ -176,9 +177,10 @@
           </ion-toolbar>
         </ion-header>
         <ion-content class="modal-content">
-          <ion-input type="text" label="Username" placeholder="請輸入用戶名"></ion-input>
-          <ion-input type="email" label="Email" placeholder="請輸入電子郵件"></ion-input>
-          <ion-input type="password" label="Password" placeholder="請輸入密碼"></ion-input>
+          <ion-input type="text" name="username" label="Username" placeholder="請輸入用戶名"></ion-input>
+          <ion-input type="email" name="email" label="Email" placeholder="請輸入電子郵件"></ion-input>
+          <ion-input type="password" name="password" label="Password" placeholder="請輸入密碼"></ion-input>
+          <ion-input type="confirmPassword" name="confirmPassword" label="ConfirmPassword" placeholder="請輸入密碼"></ion-input>
           <ion-button class="ion-margin-top" expand="block"onclick="submitRegister()">Register</ion-button>
           <div class="modal-link">
             <p>Already have an account?
@@ -471,8 +473,52 @@
         loginResultText.textContent = 'Login successful';
         localStorage.setItem('token',json.token)
         setTimeout(() => { loginModal.dismiss()
+          checkLogin()
         },2000)
       }
+    }
+    async function checkLogin() {
+      let url =`${baseUrl}/auth/check`
+      let res = await fetch(url,{
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+      })
+      let json = await res.json()
+      if(json.error){
+        const alert = document.createElement('ion-alert')
+        alert.header = 'Failed to check login status'
+        alert.message = 'json.error'
+        alert.buttons=[{
+          text:'Dismiss', role: 'cancel'},
+        {
+          text: 'Retry',
+          role: 'confirm',
+          handler: () => {
+            checkLogin()
+          },
+        },
+      ]
+
+        document.body.appendChild(alert)
+        await alert.present()
+        return
+      }
+      if (json.user_id) {
+        LoginButton.hidden = true
+        LogoutButton.hidden = false
+      } else{
+        LoginButton.hidden = true
+        LogoutButton.hidden = false
+      }
+       }
+    checkLogin()
+
+    function logout() {
+      localStorage.removeItem('token')
+      checkLogin()
     }
     </script>
   </body>
